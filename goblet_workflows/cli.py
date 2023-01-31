@@ -34,13 +34,19 @@ def version():
 
 
 @main.command()
-def deploy():
+@click.option("--schedule", "schedule", is_flag=True)
+@click.option("-f","--file", "file", envvar="FILE")
+
+def deploy(schedule, file):
     """
     Deploy a workflow
     """
     try:
-        workflow = get_workflow()
-        workflow.deploy()
+        workflow = get_workflow(file or "main.py")
+        if schedule:
+            workflow.deploy_scheduler()
+        else:
+            workflow.deploy()
 
     except FileNotFoundError as not_found:
         click.echo(

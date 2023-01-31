@@ -9,6 +9,7 @@ from goblet_workflows.exceptions import (
 )
 from goblet_workflows.client import (
     create_workflow_client,
+    create_scheduler_client,
     get_default_project,
     get_default_location,
 )
@@ -26,9 +27,11 @@ class Workflow:
     steps = {}
     task_list = []
 
-    def __init__(self, name, params=None, **kwargs) -> None:
+    def __init__(self, name, params=None, serviceAccount=None, **kwargs) -> None:
         self.name = name
         self.params = params
+        self.serviceAccount = serviceAccount
+        self._schedule = None
 
     def register_step(self, step):
         self.steps[step.name] = step
@@ -53,6 +56,44 @@ class Workflow:
             if parent:
                 self.task_list.append(parent)
 
+    def set_schedule(
+        self, schedule, timezone="UTC", httpTarget={}, serviceAccount=None, **kwargs
+    ):
+        if not serviceAccount and not self.serviceAccount:
+            raise ValueError(
+                "Missing serviceAccount defined in schedule or in workflow"
+            )
+        self._schedule = {
+            "name": f"projects/{get_default_project()}/locations/{get_default_location()}/jobs/goblet-worfklow-{self.name}",
+            "schedule": schedule,
+            "timeZone": timezone,
+            "httpTarget": {
+                "uri": f"https://workflowexecutions.googleapis.com/v1/projects/{get_default_project()}/locations/{get_default_location()}/workflows/{self.name}/executions",
+                "oauthToken": {
+                    "serviceAccountEmail": serviceAccount or self.serviceAccount
+                },
+                **httpTarget,
+            },
+            **kwargs,
+        }
+
+    def deploy_scheduler(self):
+        scheduler_client = create_scheduler_client()
+        try:
+            scheduler_client.execute("create", params={"body": self._schedule})
+            log.info(f"created scheduled job for {self.name}")
+        except HttpError as e:
+            if e.resp.status == 409:
+                log.info(f"updated scheduled job for {self.name}")
+                scheduler_client.execute(
+                    "patch",
+                    parent_key="name",
+                    parent_schema=self._schedule["name"],
+                    params={"body": self._schedule},
+                )
+            else:
+                raise e
+
     def create_definition(self):
         main_definition = {}
         if self.params:
@@ -61,7 +102,7 @@ class Workflow:
         steps = []
         for task in self.task_list:
             # TODO: handle case when task is itself a list
-            # Should create breanch behind scenes or return error
+            # Should create branch behind scenes or return error
             steps.append(task.create_definition())
         main_definition["steps"] = steps
         return {"main": main_definition}
@@ -83,6 +124,7 @@ class Workflow:
             "name": f"projects/{get_default_project()}/locations/{get_default_location()}/workflows/{self.name}",
             "description": "goblet workflow",
             "sourceContents": self.get_yaml_defintion(),
+            "serviceAccount": self.serviceAccount,
         }
 
         try:
@@ -102,6 +144,9 @@ class Workflow:
                 log.info(f"Workflow {self.name} already exists. Updating workflow...")
             else:
                 raise e
+
+        if self._schedule:
+            self.deploy_scheduler()
 
         resp = workflow_client.wait_for_operation(operation["name"])
         if resp.get("error"):
