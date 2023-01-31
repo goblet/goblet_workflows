@@ -80,12 +80,12 @@ Please file any issues, bugs or feature requests as an issue on our [GitHub](htt
  &#9745; Http Steps \
  &#9745; GCP Generic Connectors \
  &#9745; BQ Connector \
- &#9744; Dataform Connector \
+ &#9745; Dataform Connector \
  &#9745; Deploy \
- &#9744; Deploy Arbitrary File\
+ &#9745; Deploy Arbitrary File\
  &#9744; Execute \
  &#9744; Delete \
- &#9744; Schedule \
+ &#9745; Schedule \
  &#9744; Conditions \
  &#9744; Subworkflows \
  &#9744; Parameter typing

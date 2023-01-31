@@ -1,15 +1,12 @@
 from goblet_workflows.workflow import Workflow
 from goblet_workflows.steps import AssignStep, HttpStep, Branch
 
-wf = Workflow("branching-example", params=["args", "var1"])
+wf = Workflow("branching-example", params=["args"])
 
 http_defaults = {"auth": {"type": "OIDC"}, "timeout": 120}
 
 upack_args = AssignStep(
-    wf,
-    "upack_args",
-    var1="${var1}",
-    project_id="${args.project_id}"
+    wf, "upack_args", var1="${args.var1}", project_id="${args.project_id}"
 )
 
 step_1 = HttpStep(
@@ -60,11 +57,7 @@ step_5 = HttpStep(
     },
 )
 
-branch = Branch(
-    name="branch",
-    shared=["var2"]
-)
+branch = Branch(name="branch", shared=["var1"])
 
 # Define Workflow Order
 upack_args > step_1 > step_2 > branch([step_3, [step_4, step_5]])
-

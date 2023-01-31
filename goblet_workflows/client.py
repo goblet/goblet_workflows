@@ -203,3 +203,12 @@ def create_workflow_client():
         calls="projects.locations.workflows",
         parent_schema="projects/{project_id}/locations/{location_id}",
     )
+
+
+def create_scheduler_client():
+    return Client(
+        "cloudscheduler",
+        "v1",
+        calls="projects.locations.jobs",
+        parent_schema="projects/{project_id}/locations/{location_id}",
+    )
