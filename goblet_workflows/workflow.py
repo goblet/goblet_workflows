@@ -14,6 +14,8 @@ from goblet_workflows.client import (
     get_default_location,
 )
 
+from goblet_workflows.controls import Branch
+
 import logging
 
 log = logging.getLogger("goblet_workflows")
@@ -32,6 +34,7 @@ class Workflow:
         self.params = params
         self.serviceAccount = serviceAccount
         self._schedule = None
+        self.counter = 1
 
     def register_step(self, step):
         self.steps[step.name] = step
@@ -41,6 +44,9 @@ class Workflow:
             raise GobletWorkflowException(
                 f"{child.name} doesnt exist in current workflow"
             )
+        if isinstance(parent, list):
+            parent = Branch(name=f"branch-{self.counter}", branches=parent)
+            self.counter+=1
         if child in self.task_list:
             if not parent:
                 raise GobletWorkflowException("Parent is None")
@@ -48,8 +54,10 @@ class Workflow:
             # child is last
             if index == len(self.task_list) - 1:
                 self.task_list.append(parent)
+            # create a branch
             else:
-                self.task_list[index + 1] = [parent, self.task_list[index + 1]]
+                self.task_list[index + 1] = Branch(name=f"branch-{self.counter}", branches=[parent, self.task_list[index + 1]])
+                self.counter+=1
 
         else:
             self.task_list.append(child)
