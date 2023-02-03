@@ -6,7 +6,6 @@ import sys
 
 @contextmanager
 def add_to_path(p):
-    import sys
 
     old_path = sys.path
     sys.path = sys.path[:]

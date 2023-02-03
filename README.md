@@ -2,6 +2,8 @@
 
 ![PyPI](https://img.shields.io/pypi/v/goblet_workflows?color=blue&style=plastic)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/goblet_workflows?style=plastic)
+![Tests](https://github.com/goblet/goblet_workflows/actions/workflows/main.yml/badge.svg)
+[![codecov](https://codecov.io/gh/goblet/goblet_workflows/branch/main/graph/badge.svg?token=g8TL6Sc0P5)](https://codecov.io/gh/goblet/goblet_workflows)
 
 Goblet Workflows is a wrapper around [GCP Workflows](https://cloud.google.com/workflows/docs/overview), which is a fully-managed orchestration platform that executes services in an order that you define: a workflow. These workflows can combine services including custom services hosted on Cloud Run or Cloud Functions, Google Cloud services such as Cloud Vision AI and BigQuery, and any HTTP-based API.
 

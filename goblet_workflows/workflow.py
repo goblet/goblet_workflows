@@ -26,10 +26,9 @@ representer.RoundTripRepresenter.ignore_aliases = lambda x, y: True
 
 
 class Workflow:
-    steps = {}
-    task_list = []
-
     def __init__(self, name, params=None, serviceAccount=None, **kwargs) -> None:
+        self.steps = {}
+        self.task_list = []
         self.name = name
         self.params = params
         self.serviceAccount = serviceAccount
@@ -46,7 +45,7 @@ class Workflow:
             )
         if isinstance(parent, list):
             parent = Branch(name=f"branch-{self.counter}", branches=parent)
-            self.counter+=1
+            self.counter += 1
         if child in self.task_list:
             if not parent:
                 raise GobletWorkflowException("Parent is None")
@@ -56,8 +55,11 @@ class Workflow:
                 self.task_list.append(parent)
             # create a branch
             else:
-                self.task_list[index + 1] = Branch(name=f"branch-{self.counter}", branches=[parent, self.task_list[index + 1]])
-                self.counter+=1
+                self.task_list[index + 1] = Branch(
+                    name=f"branch-{self.counter}",
+                    branches=[parent, self.task_list[index + 1]],
+                )
+                self.counter += 1
 
         else:
             self.task_list.append(child)

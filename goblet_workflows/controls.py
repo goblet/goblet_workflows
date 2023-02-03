@@ -1,6 +1,7 @@
 from goblet_workflows.steps import Step
 from goblet_workflows.exceptions import GobletWorkflowException
 
+
 class Branch(Step):
     def __init__(self, name: str, branches=[], shared=None, **kwargs) -> None:
         self.name: str = name

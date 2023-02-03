@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from goblet_workflows.workflow import Workflow
 
+
 class Step:
     def __init__(self, workflow: Workflow, name: str, **kwargs) -> None:
         self.name: str = name
@@ -31,7 +32,7 @@ class Step:
 
 
 class MultiStep:
-    def __init__(self, workflow: Workflow **kwargs) -> None:
+    def __init__(self, workflow: Workflow, **kwargs) -> None:
         self.workflow = workflow
         self.kwargs = kwargs
 
@@ -65,6 +66,17 @@ class CompleteStep(Step):
 
 
 class HttpStep(Step):
+    def __init__(
+        self, workflow: Workflow, name: str, args: dict, call: str = "post", **kwargs
+    ) -> None:
+        super().__init__(
+            workflow,
+            name,
+            call=call,
+            args=args,
+            **kwargs,
+        )
+
     def create_definition(self):
         optional = {}
         if self.kwargs.get("result"):
@@ -129,6 +141,7 @@ class BQStep(Step):
             }
         }
         return definition
+
 
 class DataformSteps(MultiStep):
     def __init__(self, workflow: Workflow, git_branch, **kwargs) -> None:

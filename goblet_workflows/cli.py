@@ -1,15 +1,8 @@
 import click
-import os
 import logging
-
-# import subprocess
-import json
-
-# import requests
 import sys
 
 from goblet_workflows.utils import get_workflow
-from goblet_workflows.client import get_default_project
 from goblet_workflows.__version__ import __version__
 
 logging.basicConfig()
@@ -35,8 +28,7 @@ def version():
 
 @main.command()
 @click.option("--schedule", "schedule", is_flag=True)
-@click.option("-f","--file", "file", envvar="FILE")
-
+@click.option("-f", "--file", "file", envvar="FILE")
 def deploy(schedule, file):
     """
     Deploy a workflow
