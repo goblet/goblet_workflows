@@ -19,6 +19,9 @@ class Branch(Step):
             self.workflow.register_step(self)
         return self
 
+    def append(self, parent):
+        self.branches.append(parent)
+
     def create_definition(self):
         if not self.branches:
             raise GobletWorkflowException("At least one branch step is required")

@@ -39,7 +39,10 @@ class Workflow:
         self.steps[step.name] = step
 
     def add_relationship(self, child, parent):
-        if child not in self.task_list and len(self.task_list) > 0:
+        if (
+            not self.check_in_nested_list(child, self.task_list)
+            and len(self.task_list) > 0
+        ):
             raise GobletWorkflowException(
                 f"{child.name} doesnt exist in current workflow"
             )
@@ -53,18 +56,47 @@ class Workflow:
             # child is last
             if index == len(self.task_list) - 1:
                 self.task_list.append(parent)
-            # create a branch
+            # handing branching
             else:
-                self.task_list[index + 1] = Branch(
-                    name=f"branch-{self.counter}",
-                    branches=[parent, self.task_list[index + 1]],
-                )
-                self.counter += 1
-
+                if isinstance(self.task_list[index + 1], Branch):
+                    self.task_list[index + 1].append(parent)
+                else:
+                    self.task_list[index + 1] = Branch(
+                        name=f"branch-{self.counter}",
+                        branches=[self.task_list[index + 1], parent],
+                    )
+                    self.counter += 1
+        # child is in nested branch
+        elif self.check_in_nested_list(child, self.task_list):
+            self.insert_nested_child(child, parent, self.task_list)
         else:
             self.task_list.append(child)
             if parent:
                 self.task_list.append(parent)
+
+    def check_in_nested_list(self, child, task_list):
+        for item in task_list:
+            if child == item:
+                return True
+            if isinstance(item, list):
+                return self.check_in_nested_list(child, item)
+            if isinstance(item, Branch):
+                return self.check_in_nested_list(child, item.branches)
+        return False
+
+    def insert_nested_child(self, child, parent, task_list):
+        for index, item in enumerate(task_list):
+            if child == item:
+                task_list[index] = Branch(
+                    name=f"branch-{self.counter}",
+                    branches=[task_list[index], parent],
+                )
+                self.counter += 1
+                return
+            if isinstance(item, list):
+                return self.insert_nested_child(child, parent, item)
+            if isinstance(item, Branch):
+                return self.insert_nested_child(child, parent, item.branches)
 
     def set_schedule(
         self, schedule, timezone="UTC", httpTarget={}, serviceAccount=None, **kwargs
