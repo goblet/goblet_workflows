@@ -48,12 +48,13 @@ def deploy(schedule, file):
 
 
 @main.command()
-def print():
+@click.option("-f", "--file", "file", envvar="FILE")
+def print(file):
     """
     Deploy a workflow
     """
     try:
-        workflow = get_workflow()
+        workflow = get_workflow(file or "main.py")
         workflow.print_yaml()
 
     except FileNotFoundError as not_found:
