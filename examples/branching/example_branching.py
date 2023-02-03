@@ -1,5 +1,6 @@
 from goblet_workflows.workflow import Workflow
-from goblet_workflows.steps import AssignStep, HttpStep, Branch
+from goblet_workflows.steps import AssignStep, HttpStep
+from goblet_workflows import Branch
 
 wf = Workflow("branching-example", params=["args"])
 
