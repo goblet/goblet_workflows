@@ -2,6 +2,7 @@ from ruamel.yaml import YAML, representer
 import io
 import sys
 from googleapiclient.errors import HttpError
+import polling2
 
 from goblet_workflows.exceptions import (
     GobletWorkflowException,
@@ -9,6 +10,7 @@ from goblet_workflows.exceptions import (
 )
 from goblet_workflows.client import (
     create_workflow_client,
+    create_execution_client,
     create_scheduler_client,
     get_default_project,
     get_default_location,
@@ -193,3 +195,41 @@ class Workflow:
         resp = workflow_client.wait_for_operation(operation["name"])
         if resp.get("error"):
             raise GobletWorkflowYAMLException(**resp["error"])
+
+    def execute(self, argument=""):
+        """Trigger a workflow
+        args should be json string
+        for example argument=json.dumps({"var1":"xx", "project_id":"PROJECT"})
+        """
+        workflow_name = f"projects/{get_default_project()}/locations/{get_default_location()}/workflows/{self.name}"
+
+        body = {
+            "argument": argument,
+        }
+
+        execution_client = create_execution_client()
+        execution = execution_client.execute(
+            "create", parent_schema=workflow_name, params={"body": body}
+        )
+        log.info(f"Executing workflow {self.name}...")
+
+        polling2.poll(
+            lambda: self.get_execution_status(execution["name"]),
+            step=3,
+            timeout=60,
+            check_success=self.execution_response_check,
+        )
+
+    def get_execution_status(self, execution_name):
+        execution_client = create_execution_client()
+        execution = execution_client.execute(
+            "get", parent_schema=execution_name, parent_key="name"
+        )
+        log.info(f"Execution state: {execution['state']}...")
+        if execution.get("error"):
+            log.error(f"Error executing {self.name}. {execution['error']['payload']}")
+        return execution["state"]
+
+    def execution_response_check(self, response):
+        """Check that the response returned is not ACTIVE'"""
+        return response != "ACTIVE"

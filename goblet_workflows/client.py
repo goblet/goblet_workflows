@@ -205,6 +205,15 @@ def create_workflow_client():
     )
 
 
+def create_execution_client():
+    return Client(
+        "workflowexecutions",
+        "v1",
+        calls="projects.locations.workflows.executions",
+        parent_schema="projects/{project_id}/locations/{location_id}",
+    )
+
+
 def create_scheduler_client():
     return Client(
         "cloudscheduler",

@@ -56,6 +56,14 @@ To view the yaml run
 
 `goblet_workflows print`
 
+To execute a workflow run 
+
+`goblet_workflows execute`
+
+To execute a workflow run with an arg
+
+`goblet_workflows execute --arg '{"project_id":"PROJECT","var1":"xx"}'`
+
 ## Examples
 
 [Goblet Workflow Examples](https://github.com/goblet/goble_workflows/blob/main/examples)
@@ -66,6 +74,7 @@ To view the yaml run
 * Branches
 * Deployment of Workflows and Schedules
 * GCP Connectors
+* Execute Workflows
 
 ## GCP Workflows 
 
@@ -85,7 +94,7 @@ Please file any issues, bugs or feature requests as an issue on our [GitHub](htt
  &#9745; Dataform Connector \
  &#9745; Deploy \
  &#9745; Deploy Arbitrary File\
- &#9744; Execute \
+ &#9745; Execute \
  &#9744; Delete \
  &#9745; Schedule \
  &#9744; Conditions \
