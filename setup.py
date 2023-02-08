@@ -25,6 +25,7 @@ REQUIRED = [
     "click",
     "google-api-python-client",
     "ruamel.yaml",
+    "polling2"
 ]
 
 here = os.path.abspath(os.path.dirname(__file__))
