@@ -27,6 +27,23 @@ def version():
 
 
 @main.command()
+@click.option("-f", "--file", "file", envvar="FILE")
+def print(file):
+    """
+    Deploy a workflow
+    """
+    try:
+        workflow = get_workflow(file or "main.py")
+        workflow.print_yaml()
+
+    except FileNotFoundError as not_found:
+        click.echo(
+            f"Missing {not_found.filename}. Make sure you are in the correct directory and this file exists"
+        )
+        sys.exit(1)
+
+
+@main.command()
 @click.option("--schedule", "schedule", is_flag=True)
 @click.option("-f", "--file", "file", envvar="FILE")
 def deploy(schedule, file):
@@ -49,13 +66,14 @@ def deploy(schedule, file):
 
 @main.command()
 @click.option("-f", "--file", "file", envvar="FILE")
-def print(file):
+@click.option("--arg", "arg", envvar="ARG")
+def execute(file, arg):
     """
-    Deploy a workflow
+    Execute a workflow. An argument is passed in as a json string to the --arg flag
     """
     try:
         workflow = get_workflow(file or "main.py")
-        workflow.print_yaml()
+        workflow.execute(argument=arg)
 
     except FileNotFoundError as not_found:
         click.echo(
