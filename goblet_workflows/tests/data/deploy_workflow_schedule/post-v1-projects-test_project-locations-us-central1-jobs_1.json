@@ -1,0 +1,22 @@
+{
+  "headers": {},
+  "body": {
+    "name": "projects/test_project/locations/us-central1/jobs/goblet-worfklow-test_deploy_workflow",
+    "httpTarget": {
+      "uri": "https://workflowexecutions.googleapis.com/v1/projects/test_project/locations/us-central1/workflows/test_deploy_workflow/executions",
+      "httpMethod": "POST",
+      "headers": {
+        "User-Agent": "Google-Cloud-Scheduler"
+      },
+      "oauthToken": {
+        "serviceAccountEmail": "test@test-project.iam.gserviceaccount.com",
+        "scope": "https://www.googleapis.com/auth/cloud-platform"
+      }
+    },
+    "userUpdateTime": "2023-02-13T20:19:59Z",
+    "state": "ENABLED",
+    "schedule": "* * * * *",
+    "timeZone": "UTC",
+    "attemptDeadline": "180s"
+  }
+}
