@@ -52,7 +52,7 @@ jobs:
         run: |
           export PYTHONPATH=$(pwd)
           export export G_TEST_DATA_DIR="$(pwd)/goblet_workflows/tests/data"
-          export G_HTTP_TEST=REPLAY
+          export G_MOCK_CREDENTIALS=True
           coverage run -m pytest goblet_workflows/tests;
       - name: "Upload coverage to Codecov"
         uses: codecov/codecov-action@v1
