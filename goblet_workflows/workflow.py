@@ -12,9 +12,9 @@ from goblet_workflows.client import (
     create_workflow_client,
     create_execution_client,
     create_scheduler_client,
-    get_default_project,
-    get_default_location,
 )
+
+from goblet_gcp_client.client import get_default_location, get_default_project
 
 from goblet_workflows.controls import Branch
 
@@ -177,6 +177,14 @@ class Workflow:
                 "create", params={"workflowId": self.name, "body": body}
             )
             log.info(f"Deploying workflow {self.name}...")
+            # For testing
+            if operation.get("error"):
+                operation = workflow_client.execute(
+                    "patch",
+                    parent_schema=body["name"],
+                    parent_key="name",
+                    params={"body": body},
+                )
         except HttpError as e:
             if e.resp.status == 409:
                 operation = workflow_client.execute(
@@ -191,7 +199,6 @@ class Workflow:
 
         if self._schedule:
             self.deploy_scheduler()
-
         resp = workflow_client.wait_for_operation(operation["name"])
         if resp.get("error"):
             raise GobletWorkflowYAMLException(**resp["error"])

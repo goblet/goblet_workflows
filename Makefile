@@ -13,6 +13,7 @@ lint:
 	flake8 goblet_workflows
 
 coverage:
+	export export G_TEST_DATA_DIR="$(pwd)/goblet_workflows/tests/data"
 	coverage run -m pytest goblet_workflows/tests;
 	coverage report -m --include="goblet_workflows/*" --omit="goblet_workflows/tests/*";
 

@@ -1,0 +1,27 @@
+{
+  "headers": {},
+  "body": {
+    "name": "projects/test_project/locations/us-central1/operations/operation-1676319594708-5f49a91f8fde2-01a032a7-5970c681",
+    "metadata": {
+      "@type": "type.googleapis.com/google.cloud.workflows.v1.OperationMetadata",
+      "createTime": "2023-02-13T20:19:54.835015426Z",
+      "endTime": "2023-02-13T20:19:55.714726441Z",
+      "target": "projects/test_project/locations/us-central1/workflows/test_deploy_workflow",
+      "verb": "create",
+      "apiVersion": "v1"
+    },
+    "done": true,
+    "response": {
+      "@type": "type.googleapis.com/google.cloud.workflows.v1.Workflow",
+      "name": "projects/test_project/locations/us-central1/workflows/test_deploy_workflow",
+      "description": "goblet workflow",
+      "state": "ACTIVE",
+      "revisionId": "000001-a04",
+      "createTime": "2023-02-13T20:19:54.829427086Z",
+      "updateTime": "2023-02-13T20:19:54.829427086Z",
+      "revisionCreateTime": "2023-02-13T20:19:54.860391206Z",
+      "serviceAccount": "projects/test_project/serviceAccounts/test@test_project.iam.gserviceaccount.com",
+      "sourceContents": "main:\n  steps:\n  - '1':\n      call: http.post\n      args:\n        url: test.com\n  - '2':\n      call: http.post\n      args:\n        url: test.com\n"
+    }
+  }
+}

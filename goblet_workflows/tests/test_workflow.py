@@ -1,5 +1,6 @@
 from goblet_workflows.steps import Step
-from goblet_workflows import Workflow, Branch
+from goblet_workflows import Workflow, Branch, HttpStep
+from goblet_gcp_client import get_responses, get_replay_count
 
 
 class TestWorkflow:
@@ -96,3 +97,94 @@ class TestWorkflow:
         assert step2 == wf.task_list[1].branches[0].branches[0]
         assert step4 in wf.task_list[1].branches[0].branches[1].branches
         assert step5 in wf.task_list[1].branches[0].branches[1].branches
+
+
+class TestWorkflowDeployment:
+    def test_deploy_workflow(self, monkeypatch):
+        monkeypatch.setenv("G_HTTP_TEST", "REPLAY")
+        monkeypatch.setenv("G_TEST_NAME", "deploy_workflow")
+        monkeypatch.setenv("GOOGLE_LOCATION", "us-central1")
+        monkeypatch.setenv("GOOGLE_CLOUD_PROJECT", "test_project")
+        # monkeypatch.setenv("G_TEST_DATA_DIR", join(dirname(__file__), "data"))
+        monkeypatch.setenv("G_REPLAY_COUNT", "0")
+
+        wf = Workflow("test_deploy_workflow")
+        step1 = HttpStep(wf, "1", args={"url": "test.com"})
+        step2 = HttpStep(wf, "2", args={"url": "test.com"})
+
+        step1 > step2
+
+        wf.deploy()
+
+        resp = get_responses("deploy_workflow")
+        assert (
+            resp[1]["body"]["metadata"]["target"]
+            == "projects/test_project/locations/us-central1/workflows/test_deploy_workflow"
+        )
+        assert get_replay_count() == 2
+
+    def test_update_workflow(self, monkeypatch):
+        monkeypatch.setenv("G_HTTP_TEST", "REPLAY")
+        monkeypatch.setenv("G_TEST_NAME", "update_workflow")
+        monkeypatch.setenv("GOOGLE_LOCATION", "us-central1")
+        monkeypatch.setenv("GOOGLE_CLOUD_PROJECT", "test_project")
+        # monkeypatch.setenv("G_TEST_DATA_DIR", join(dirname(__file__), "data"))
+        monkeypatch.setenv("G_REPLAY_COUNT", "0")
+
+        wf = Workflow("test_deploy_workflow")
+        step1 = HttpStep(wf, "1", args={"url": "test.com"})
+        step2 = HttpStep(wf, "2", args={"url": "test.com"})
+
+        step1 > step2
+
+        wf.deploy()
+
+        resp = get_responses("update_workflow")
+        assert (
+            resp[1]["body"]["metadata"]["target"]
+            == "projects/test_project/locations/us-central1/workflows/test_deploy_workflow"
+        )
+        assert get_replay_count() == 3
+
+    def test_deploy_workflow_schedule(self, monkeypatch):
+        monkeypatch.setenv("G_HTTP_TEST", "REPLAY")
+        monkeypatch.setenv("G_TEST_NAME", "deploy_workflow_schedule")
+        monkeypatch.setenv("GOOGLE_LOCATION", "us-central1")
+        monkeypatch.setenv("GOOGLE_CLOUD_PROJECT", "test_project")
+        monkeypatch.setenv("G_REPLAY_COUNT", "0")
+
+        wf = Workflow(
+            "test_deploy_workflow",
+            serviceAccount="test@test-project.iam.gserviceaccount.com",
+        )
+        step1 = HttpStep(wf, "1", args={"url": "test.com"})
+        step2 = HttpStep(wf, "2", args={"url": "test.com"})
+        wf.set_schedule("* * * * *")
+
+        step1 > step2
+
+        wf.deploy()
+
+        resp = get_responses("deploy_workflow_schedule")
+        assert "test_deploy_workflow" in resp[1]["body"]["httpTarget"]["uri"]
+        assert (
+            resp[2]["body"]["metadata"]["target"]
+            == "projects/test_project/locations/us-central1/workflows/test_deploy_workflow"
+        )
+        assert get_replay_count() == 3
+
+    def test_execute_workflow(self, monkeypatch):
+        monkeypatch.setenv("G_HTTP_TEST", "REPLAY")
+        monkeypatch.setenv("G_TEST_NAME", "execute_workflow")
+        monkeypatch.setenv("GOOGLE_LOCATION", "us-central1")
+        monkeypatch.setenv("GOOGLE_CLOUD_PROJECT", "test_project")
+        # monkeypatch.setenv("G_TEST_DATA_DIR", join(dirname(__file__), "data"))
+        monkeypatch.setenv("G_REPLAY_COUNT", "0")
+
+        wf = Workflow("test_deploy_workflow")
+        wf.execute()
+
+        resp = get_responses("execute_workflow")
+        assert "test_deploy_workflow" in resp[0]["body"]["name"]
+        assert "ACTIVE" != resp[0]["body"]["state"]
+        assert get_replay_count() == 2
