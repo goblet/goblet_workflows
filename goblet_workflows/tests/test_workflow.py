@@ -1,6 +1,5 @@
 from goblet_workflows.steps import Step
 from goblet_workflows import Workflow, Branch, HttpStep
-from os.path import join, dirname
 from goblet_gcp_client import get_responses, get_replay_count
 
 
@@ -147,7 +146,7 @@ class TestWorkflowDeployment:
         )
         assert get_replay_count() == 3
 
-    def test_deploy_workflow(self, monkeypatch):
+    def test_deploy_workflow_schedule(self, monkeypatch):
         monkeypatch.setenv("G_HTTP_TEST", "REPLAY")
         monkeypatch.setenv("G_TEST_NAME", "deploy_workflow_schedule")
         monkeypatch.setenv("GOOGLE_LOCATION", "us-central1")
